@@ -23,6 +23,15 @@ struct vec3 {
     }
 
     float distance(vec3 * other);
+    float magnitude();
+    void normalize();
+
+    void add(vec3 * other);
+    void sub(vec3 * other);
+    float dot(vec3 * other);
+
+    void mul(float scale);
+    void div(float scale);
 };
 
 struct sphere {
