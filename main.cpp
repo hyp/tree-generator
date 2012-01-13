@@ -76,7 +76,7 @@ void Segment::display(){
 
 void init() {
 	if (crown) delete crown;
-	crown = new SphereCrown(sphere(vec3(0, 8, 0), 4));
+	crown = new SphereCrown(sphere(vec3(0, 8, 0), 4));	
 	points.resize(numAttractionPoints);
 	crown->generate(points);
 	int numSegs = 12;
@@ -110,12 +110,14 @@ void display() {
 	glLoadIdentity();
 
 	glColor4f(1, 0, 0, 1.0f);
+	int pointsRemaining = 0;
 	for (int i = 0; i < points.size(); i++) {
 		if (points[i].used) {
 			glPushMatrix();
 			glTranslatef(points[i].position.x, points[i].position.y, points[i].position.z);
 			glutSolidSphere(0.2f, 4, 4);
 			glPopMatrix();
+			pointsRemaining++;
 		}
 	}
 
@@ -143,8 +145,10 @@ void display() {
 	print(-1, 0.85, text);
 	sprintf(text, "Seg length = %f", segmentLength);
 	print(-1, 0.8, text);
+	sprintf(text, "%d segments generated with %d points remaining", segments.size(),pointsRemaining);
+	print(-1, 0.75, text);
 
-	print(-1, -1, "Controls: 'z'/'x' change segment length, 'c'/'v' change influence radius, 'b'/'n' change kill distance");
+	print(-1, -1, "Controls: 'z'/'x' change segment length, 'c'/'v' change influence radius, 'b'/'n' change kill distance, 'Enter' run one iteration");
 
 	glDisable(GL_BLEND);
 	glutSwapBuffers();
@@ -157,7 +161,7 @@ void reshape(int w, int h) {
 	glLoadIdentity();
 	gluPerspective(60.0, (GLfloat) w / (GLfloat) h, 1.0, 60.0);
 	gluLookAt(-20, 10, 0, // eye
-		0, 0, 0, // center
+		0, 2.0, 0, // center
 		0.0, 1.0, 0.0); // up
 
 }
@@ -210,7 +214,7 @@ int main(int argc, char** argv) {
 	glutReshapeFunc(& reshape);
 	glutKeyboardFunc(& keyboard);
 	glutSpecialFunc(& special);
-
+	
 	glClearColor(1, 1, 1, 1.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_COLOR_MATERIAL);

@@ -36,20 +36,6 @@ public:
     void generate(std::vector<Point>& points);
 };
 
-/**
- * Spherical tree crown
- */
-//class SphereCrown : public Crown {
-//    sphere volume;
-//public:
-//
-//    SphereCrown(sphere vol) : volume(vol) {
-//    }
-//
-//    void bounds(treegenerator::vec3* min, vec3* max);
-//    bool contains(treegenerator::vec3* point);
-//    void display();
-//};
 
 /**
  * Branch segment
