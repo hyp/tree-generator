@@ -71,6 +71,13 @@ public:
     void display();
 };
 
+/**
+ * @param segments
+ * @param points
+ * @param segmentLength
+ * @param influenceRadius
+ * @param killDistance
+ */
 void iteration(std::vector<Segment>& segments,std::vector<Point>& points,float segmentLength,float influenceRadius,float killDistance);
 
 #endif	/* _ALG_H */

@@ -46,12 +46,12 @@ void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float 
 	//Foreach target point find closest segment and record in segment's influence set it if it's in influence area
 	for (int i = 0; i < points.size(); i++) {
 		if(points[i].used){
-			float closestDistance = 10000000;
+			//float closestDistance = 10000000;
 			for (int j = 0; j < segments.size(); j++) {
 				float dist = segments[j].end.distance(&points[i].position);
-				if (dist <= influenceRadius && closestDistance > dist) {
+				if (dist <= influenceRadius /*&& closestDistance > dist*/) {
 					segments[j].influencePoints.push_back(i);
-					closestDistance = dist;
+					//closestDistance = dist;
 				}
 			}
 		}

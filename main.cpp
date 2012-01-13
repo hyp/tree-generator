@@ -17,13 +17,13 @@
 #include "alg.h"
 
 int numAttractionPoints = 1000;
-float segmentLength=1.0f;
+float segmentLength = 1.0f;
 float influenceRadius = 4.0f;
 float killDistance = 2.0f;
 
-float camera=10.0f;
+float camera = 10.0f;
 
-Crown* crown;
+Crown* crown = 0;
 std::vector<Point> points;
 std::vector<Segment> segments;
 
@@ -40,6 +40,7 @@ void Segment::display() {
 	glVertex3f(start.x, start.y, start.z);
 	glVertex3f(end.x, end.y, end.z);
 	glEnd();
+	return;
 	glPushMatrix();
 	glTranslatef(start.x, start.y, start.z);
 	glutWireSphere(0.2, 8, 8);
@@ -51,16 +52,25 @@ void Segment::display() {
 }
 
 void init() {
+	if (crown) delete crown;
 	crown = new SphereCrown(sphere(vec3(0, 8, 0), 4));
 	points.resize(numAttractionPoints);
 	crown->generateAttractionPoints(points);
-	segments.resize(6);
-	segments[0] = Segment(vec3(0, 0, 0), vec3(0, 1, 0));
-	segments[1] = Segment(vec3(0, 1, 0), vec3(0, 2, 0), &segments[0]);
-	segments[2] = Segment(vec3(0, 2, 0), vec3(0, 3, 0), &segments[1]);
-	segments[3] = Segment(vec3(0, 3, 0), vec3(0, 4, 0), &segments[2]);
-	segments[4] = Segment(vec3(0, 4, 0), vec3(0, 5, 0), &segments[3]);
-	segments[5] = Segment(vec3(0, 5, 0), vec3(0, 6, 0), &segments[4]);
+	int numSegs = 12;
+	float segL = 0.5f;
+	segments.resize(numSegs);
+	for (int i = 0; i < numSegs; i++) {
+		if (i) segments[i] = Segment(vec3(0, segL * i, 0), vec3(0, segL * i + segL, 0), &segments[i - 1]);
+		else segments[i] = Segment(vec3(0, segL*i, 0), vec3(0, segL * i + segL, 0));
+	}
+}
+
+void print(float x, float y, char* text) {
+	glRasterPos2f(x, y);
+	while (*text) {
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text);
+		text++;
+	}
 }
 
 void display() {
@@ -69,7 +79,7 @@ void display() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60.0, (GLfloat) 1280 / (GLfloat) 720, 1.0, 60.0);
-	gluLookAt(-camera*2, camera, 0, // eye
+	gluLookAt(-camera * 2, camera, 0, // eye
 		0, 0, 0, // center
 		0.0, 1.0, 0.0); // up
 
@@ -91,8 +101,29 @@ void display() {
 		segments[i].display();
 	}
 
-	crown->display();
+	//crown->display();
 
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, 0, 1280, 720, 0, 0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor4f(0, 0, 0, 1.0f);
+	glEnable(GL_BLEND);
+
+	char text[512];
+	sprintf(text, "Attraction points = %d", numAttractionPoints);
+	print(-1, 0.95, text);
+	sprintf(text, "Influence radius = %f", influenceRadius);
+	print(-1, 0.9, text);
+	sprintf(text, "Kill distance = %f", killDistance);
+	print(-1, 0.85, text);
+	sprintf(text, "Seg length = %f", segmentLength);
+	print(-1, 0.8, text);
+
+	print(-1, -1, "Controls: 'z'/'x' change segment length, 'c'/'v' change influence radius, 'b'/'n' change kill distance");
+
+	glDisable(GL_BLEND);
 	glutSwapBuffers();
 }
 
@@ -101,16 +132,38 @@ void reshape(int w, int h) {
 
 }
 
-void keyboard(unsigned char key,int x,int y){
+void keyboard(unsigned char key, int x, int y) {
 
-	if(key==VK_RETURN) iteration(segments,points,segmentLength,influenceRadius,killDistance);
+	if (key == VK_RETURN) iteration(segments, points, segmentLength, influenceRadius, killDistance);
+	switch (key) {
+		case 'z':segmentLength -= 0.05f;
+			init();
+			break;
+		case 'x':segmentLength += 0.05f;
+			init();
+			break;
+		case 'c':influenceRadius -= 0.1f;
+			init();
+			break;
+		case 'v':influenceRadius += 0.1f;
+			init();
+			break;
+		case 'b':killDistance -= 0.1f;
+			init();
+			break;
+		case 'n':killDistance += 0.1f;
+			init();
+			break;
+	}
 	display();
 }
 
-void special(int key,int x,int y){
-	switch(key){
-		case GLUT_KEY_UP: camera-=0.1;break;
-		case GLUT_KEY_DOWN: camera+=0.1; break;
+void special(int key, int x, int y) {
+	switch (key) {
+		case GLUT_KEY_UP: camera -= 0.1;
+			break;
+		case GLUT_KEY_DOWN: camera += 0.1;
+			break;
 	}
 	display();
 }
@@ -138,6 +191,8 @@ int main(int argc, char** argv) {
 	init();
 
 	glutMainLoop();
+
+	if (crown) delete crown;
 	return (EXIT_SUCCESS);
 }
 
