@@ -8,6 +8,8 @@
 #ifndef _ALG_H
 #define	_ALG_H
 
+#include "math_.h"
+
 /**
  * Attraction point
  */
@@ -18,7 +20,7 @@ struct Point {
     Point() {
     }
 
-    Point(vec3 pos) : position(pos), used(true) {
+    Point( vec3 pos) : position(pos), used(true) {
     }
 };
 
@@ -37,17 +39,17 @@ public:
 /**
  * Spherical tree crown
  */
-class SphereCrown : public Crown {
-    sphere volume;
-public:
-
-    SphereCrown(sphere vol) : volume(vol) {
-    }
-
-    void bounds(vec3* min, vec3* max);
-    bool contains(vec3* point);
-    void display();
-};
+//class SphereCrown : public Crown {
+//    sphere volume;
+//public:
+//
+//    SphereCrown(sphere vol) : volume(vol) {
+//    }
+//
+//    void bounds(treegenerator::vec3* min, vec3* max);
+//    bool contains(treegenerator::vec3* point);
+//    void display();
+//};
 
 /**
  * Branch segment
