@@ -13,12 +13,11 @@
 #include "math.h"
 #include "alg.h"
 
-class SphereCrown;
 
 /**
  *Generate random attraction points
  */
-void Crown::generateAttractionPoints(std::vector<Point> &points) {
+void Crown::generate(std::vector<Point> &points) {
 	vec3 min, max;
 	bounds(&min, &max);
 	for (int i = 0; i < points.size(); i++) {

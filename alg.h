@@ -33,7 +33,7 @@ public:
     virtual bool contains(vec3* point) = 0;
     virtual void display() = 0;
 
-    void generateAttractionPoints(std::vector<Point>& points);
+    void generate(std::vector<Point>& points);
 };
 
 /**
