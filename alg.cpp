@@ -5,11 +5,15 @@
  * Created on 04 August 2011, 11:53
  */
 
+#include <iostream>
+
 #include <vector>
 #include <stdio.h>
 
 #include "math.h"
 #include "alg.h"
+
+class SphereCrown;
 
 /**
  *Generate random attraction points
@@ -25,15 +29,6 @@ void Crown::generateAttractionPoints(std::vector<Point> &points) {
 		}
 		points[i] = Point(r);
 	}
-}
-
-void SphereCrown::bounds(vec3* min, vec3* max) {
-	*min = vec3(volume.position.x - volume.radius, volume.position.y - volume.radius, volume.position.z - volume.radius);
-	*max = vec3(volume.position.x + volume.radius, volume.position.y + volume.radius, volume.position.z + volume.radius);
-}
-
-bool SphereCrown::contains(vec3* point) {
-	return volume.contains(point);
 }
 
 /**
@@ -61,17 +56,18 @@ void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float 
 	int segs=segments.size(); // segments are created in loop, so save this to avoid looping over added segments
 	for (int i = 0; i < segs; i++) {
 		if(!segments[i].influencePoints.empty()){
-			printf(" seg %d is influenced by %d points\n",i,segments[i].influencePoints.size());
+			//printf(" seg %d is influenced by %d points\n",i,segments[i].influencePoints.size());
+                        std::cout << " seg " << i << " is influenced by " << segments[i].influencePoints.size() << " points" << std::endl;
 			vec3 averageDirection=vec3(0,0,0);
 			for(int j=0;j<segments[i].influencePoints.size();j++){
 				vec3 dir=points[segments[i].influencePoints[j]].position;
-				dir.sub(&segments[i].end);
+				dir.sub(segments[i].end);
 				dir.normalize();
-				averageDirection.add(&dir);
+				averageDirection.add(dir);
 			}
 			averageDirection.normalize();
 			averageDirection.mul(segmentLength);
-			averageDirection.add(&segments[i].end);//now averageDirection is the end point of new segment
+			averageDirection.add(segments[i].end);//now averageDirection is the end point of new segment
 
 			Segment branch=Segment(segments[i].end,averageDirection);
 			branch.parent=&segments[i];

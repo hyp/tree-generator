@@ -5,8 +5,10 @@
  * Created on 03 August 2011, 16:37
  */
 
-#ifndef _MATH_H
-#define	_MATH_H
+#ifndef _MATH__H
+#define	_MATH__H
+
+#include <math.h>
 
 const double PI = 3.141592653589793238462643;
 const float PIf = 3.1415926536f;
@@ -39,16 +41,45 @@ struct vec3 {
     vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {
     }
 
+    vec3& operator /=(float t)
+    {
+        float f = 1.0f / t;
+        x *= f;
+        y *= f;
+        z *= f;
+        return (*this);
+    }
+
+    vec3 add(const vec3& v)
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return (*this);
+    }
+
+    vec3 mul(float t)
+    {
+        x *= t;
+        y *= t;
+        z *= t;
+        return (*this);
+    }
+
+     vec3 sub(const vec3& v)
+    {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return (*this);
+    }
+
+     vec3 normalize()
+     {
+         return (*this /= sqrtf(x * x + y * y + z * z));
+     }
+
     float distance(vec3 * other);
-    float magnitude();
-    void normalize();
-
-    void add(vec3 * other);
-    void sub(vec3 * other);
-    float dot(vec3 * other);
-
-    void mul(float scale);
-    void div(float scale);
 };
 
 struct sphere {
