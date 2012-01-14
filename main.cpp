@@ -10,10 +10,13 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+
+#include <iostream>
 #include <vector>
 
 #include "alg.h"
 #include "math_.h"
+#include "mc.h"
 
 #ifndef VK_RETURN
 #define VK_RETURN 0x0D
@@ -82,6 +85,8 @@ void Segment::display(){
 	}
 }
 
+std::vector<vec3> triangles;
+
 void init() {
 	if (crown) delete crown;
 	crown = new SphereCrown(sphere(vec3(0, 8, 0), 4));	
@@ -94,6 +99,8 @@ void init() {
 		if (i) segments[i] = Segment(vec3(0, segL * i, 0), vec3(0, segL * i + segL, 0), &segments[i - 1]);
 		else segments[i] = Segment(vec3(0, segL*i, 0), vec3(0, segL * i + segL, 0));
 	}
+	
+	marchCubes(vec3(-16.0,-16.0,-16.0),vec3(32.0,32.0,32.0),16,triangles);
 }
 
 void print(float x, float y, char* text) {
@@ -118,8 +125,13 @@ void display() {
 	glLoadIdentity();
 
 	glColor4f(1, 0, 0, 1.0f);
+	glBegin(GL_TRIANGLES);
+	for(int i=0;i<triangles.size();i++){
+		glVertex3f(triangles[i].x,triangles[i].y,triangles[i].z);
+	}
+	glEnd();
 	int pointsRemaining = 0;
-	for (int i = 0; i < points.size(); i++) {
+	/*for (int i = 0; i < points.size(); i++) {
 		if (points[i].used) {
 			glPushMatrix();
 			glTranslatef(points[i].position.x, points[i].position.y, points[i].position.z);
@@ -140,7 +152,7 @@ void display() {
 	for (int i = 0; i < segments.size(); i++) {
 		segments[i].display();
 	}
-	glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHTING);*/
 
 	//crown->display();
 
