@@ -63,19 +63,23 @@ void SphereCrown::display() {
 }
 
 void Segment::display(){
-	glBegin(GL_LINES);
-	glVertex3f(start.x, start.y, start.z);
-	glVertex3f(end.x, end.y, end.z);
-	glEnd();
-	return;
-	glPushMatrix();
-	glTranslatef(start.x, start.y, start.z);
-	glutWireSphere(0.2, 8, 8);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslatef(end.x, end.y, end.z);
-	glutWireSphere(0.2, 8, 8);
-	glPopMatrix();
+	vec3 dir = end;
+	dir.sub(start);
+	dir.normalize();
+	
+	float radius = 0.15f;
+	float progression = 0.0f;
+	vec3 offset(0.0f,0.0f,0.0f);
+	
+	while(progression < segmentLength){
+		glPushMatrix();
+		glTranslatef(start.x+offset.x, start.y+offset.y, start.z+offset.z);
+		glutSolidSphere(radius, 8, 8);
+		glPopMatrix();
+		progression+=radius;
+		offset = dir;
+		offset.mul(progression);
+	}
 }
 
 void init() {
@@ -124,11 +128,19 @@ void display() {
 			pointsRemaining++;
 		}
 	}
-
-	glColor4f(0, 0, 1, 1.0f);
+	glEnable(GL_LIGHTING);
+	GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };    
+	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };   
+	GLfloat LightPosition[]= { -6.0f, 8.0f, 2.0f, 1.0f };  
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); 
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION,LightPosition); 
+	glEnable(GL_LIGHT1);
+	glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
 	for (int i = 0; i < segments.size(); i++) {
 		segments[i].display();
 	}
+	glDisable(GL_LIGHTING);
 
 	//crown->display();
 
