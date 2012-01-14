@@ -33,23 +33,9 @@ public:
     virtual bool contains(vec3* point) = 0;
     virtual void display() = 0;
 
-    void generateAttractionPoints(std::vector<Point>& points);
+    void generate(std::vector<Point>& points);
 };
 
-/**
- * Spherical tree crown
- */
-//class SphereCrown : public Crown {
-//    sphere volume;
-//public:
-//
-//    SphereCrown(sphere vol) : volume(vol) {
-//    }
-//
-//    void bounds(treegenerator::vec3* min, vec3* max);
-//    bool contains(treegenerator::vec3* point);
-//    void display();
-//};
 
 /**
  * Branch segment
@@ -73,6 +59,13 @@ public:
     void display();
 };
 
+/**
+ * @param segments
+ * @param points
+ * @param segmentLength
+ * @param influenceRadius
+ * @param killDistance
+ */
 void iteration(std::vector<Segment>& segments,std::vector<Point>& points,float segmentLength,float influenceRadius,float killDistance);
 
 #endif	/* _ALG_H */

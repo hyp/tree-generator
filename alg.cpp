@@ -6,19 +6,15 @@
  */
 
 #include <iostream>
-
 #include <vector>
-#include <stdio.h>
 
 #include "math.h"
 #include "alg.h"
 
-class SphereCrown;
-
 /**
- *Generate random attraction points
+ * Generate random attraction points
  */
-void Crown::generateAttractionPoints(std::vector<Point> &points) {
+void Crown::generate(std::vector<Point> &points) {
 	vec3 min, max;
 	bounds(&min, &max);
 	for (int i = 0; i < points.size(); i++) {
@@ -32,21 +28,20 @@ void Crown::generateAttractionPoints(std::vector<Point> &points) {
 }
 
 /**
- * Algorithm iteration
+ * Space colonization algorithm iteration
  */
 void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float segmentLength,float influenceRadius,float killDistance) {
 
-	printf("== Iteration ==\n");
+	std::cout<<"== Iteration =="<<std::endl;
 
 	//Foreach target point find closest segment and record in segment's influence set it if it's in influence area
 	for (int i = 0; i < points.size(); i++) {
 		if(points[i].used){
-			float closestDistance = 10000000;
 			for (int j = 0; j < segments.size(); j++) {
 				float dist = segments[j].end.distance(&points[i].position);
-				if (dist <= influenceRadius && closestDistance > dist) {
+				if (dist <= influenceRadius) {
 					segments[j].influencePoints.push_back(i);
-					closestDistance = dist;
+
 				}
 			}
 		}
@@ -56,8 +51,7 @@ void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float 
 	int segs=segments.size(); // segments are created in loop, so save this to avoid looping over added segments
 	for (int i = 0; i < segs; i++) {
 		if(!segments[i].influencePoints.empty()){
-			//printf(" seg %d is influenced by %d points\n",i,segments[i].influencePoints.size());
-                        std::cout << " seg " << i << " is influenced by " << segments[i].influencePoints.size() << " points" << std::endl;
+            std::cout << " seg " << i << " is influenced by " << segments[i].influencePoints.size() << " points" << std::endl;
 			vec3 averageDirection=vec3(0,0,0);
 			for(int j=0;j<segments[i].influencePoints.size();j++){
 				vec3 dir=points[segments[i].influencePoints[j]].position;
@@ -82,7 +76,7 @@ void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float 
 		if(points[i].used){
 			for (int j = 0; j < segments.size(); j++) {
 				if (segments[j].end.distance(&points[i].position) < killDistance) {
-					printf(" point %d removed\n",i);
+					std::cout << " point " << i << " removed" << std::endl;
 					points[i].used=false;
 					break;
 				}

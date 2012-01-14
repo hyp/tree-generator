@@ -10,6 +10,23 @@
 
 #include <math.h>
 
+const double PI = 3.141592653589793238462643;
+const float PIf = 3.1415926536f;
+const double PI_2 = 6.283185307179586476925287;
+const float PI_2f = 6.2831853072f;
+const float RAD_to_DEGf = 57.295779513f;
+const float DEG_to_RADf = 0.0174532925f;
+const double E = 2.718281828458563411277850;
+const float Ef = 2.7182818285f;
+const float Zerof = 0.00001000000f;
+const float mZerof = -0.00001000000f;
+
+/**
+ * 
+ * @param min
+ * @param max
+ * @return 
+ */
 float random(float min, float max);
 
 struct vec3 {
