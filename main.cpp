@@ -15,6 +15,10 @@
 #include "alg.h"
 #include "math_.h"
 
+#ifndef VK_RETURN
+#define VK_RETURN 0x0D
+#endif
+
 int numAttractionPoints = 1000;
 float segmentLength = 1.0f;
 float influenceRadius = 4.0f;
@@ -145,7 +149,7 @@ void display() {
 	print(-1, 0.85, text);
 	sprintf(text, "Seg length = %f", segmentLength);
 	print(-1, 0.8, text);
-	sprintf(text, "%d segments generated with %d points remaining", segments.size(),pointsRemaining);
+	sprintf(text, "%d segments generated with %d points remaining", (unsigned int)(segments.size()),pointsRemaining);
 	print(-1, 0.75, text);
 
 	print(-1, -1, "Controls: 'z'/'x' change segment length, 'c'/'v' change influence radius, 'b'/'n' change kill distance, 'Enter' run one iteration");
