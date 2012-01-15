@@ -87,6 +87,11 @@ void Segment::display(){
 
 std::vector<vec3> triangles;
 
+void triangulate(){
+	triangles.clear();
+	marchCubes(vec3(-7.0,0.0,-7.0),vec3(14.0,14.0,14.0),32,triangles,&segments);
+}
+
 void init() {
 	if (crown) delete crown;
 	crown = new SphereCrown(sphere(vec3(0, 8, 0), 4));	
@@ -100,7 +105,7 @@ void init() {
 		else segments[i] = Segment(vec3(0, segL*i, 0), vec3(0, segL * i + segL, 0));
 	}
 	
-	marchCubes(vec3(-16.0,-16.0,-16.0),vec3(32.0,32.0,32.0),16,triangles);
+	triangulate();
 }
 
 void print(float x, float y, char* text) {
@@ -111,25 +116,50 @@ void print(float x, float y, char* text) {
 	}
 }
 
+void drawLine(vec3 a,vec3 b,vec3 color){
+	glBegin(GL_LINES);
+	glColor3f(color.x,color.y,color.z);
+	glVertex3f(a.x,a.y,a.z);
+	glVertex3f(b.x,b.y,b.z);
+	glEnd();
+}
+
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60.0, (GLfloat) 1280 / (GLfloat) 720, 1.0, 60.0);
-	gluLookAt(-camera * 2, camera, 0, // eye
+	gluLookAt(-1.0, camera, -camera * 2, // eye
 		0, 0, 0, // center
 		0.0, 1.0, 0.0); // up
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	
+	drawLine(vec3(0,0,0),vec3(20,0,0),vec3(1,0,0));
+	drawLine(vec3(0,0,0),vec3(0,20,0),vec3(0,1,0));
+	drawLine(vec3(0,0,0),vec3(0,0,20),vec3(0,0,1));
+	
 
 	glColor4f(1, 0, 0, 1.0f);
+	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 	glBegin(GL_TRIANGLES);
 	for(int i=0;i<triangles.size();i++){
+		if(triangles[i].y < 5.0) glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
+		else glColor4f(0,0.8,0, 1.0f);
 		glVertex3f(triangles[i].x,triangles[i].y,triangles[i].z);
 	}
 	glEnd();
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	
+	glDisable(GL_DEPTH_TEST);
+	glColor4f(0, 0, 1, 1.0f);
+	for (int i = 0; i < segments.size(); i++) {
+		drawLine(segments[i].start,segments[i].end,vec3(0,0,1));
+	}
+	glEnable(GL_DEPTH_TEST);
+	
 	int pointsRemaining = 0;
 	/*for (int i = 0; i < points.size(); i++) {
 		if (points[i].used) {
@@ -196,7 +226,10 @@ void reshape(int w, int h) {
 
 void keyboard(unsigned char key, int x, int y) {
 
-	if (key == VK_RETURN) iteration(segments, points, segmentLength, influenceRadius, killDistance);
+	if (key == VK_RETURN){
+		iteration(segments, points, segmentLength, influenceRadius, killDistance);
+		triangulate();
+	}
 	switch (key) {
 		case 'z':segmentLength -= 0.05f;
 			init();
