@@ -73,14 +73,15 @@ void Segment::display(){
 	dir.sub(start);
 	dir.normalize();
 	
-	float radius = 0.15f;
+	float radius = startRadius;
 	float progression = 0.0f;
 	vec3 offset(0.0f,0.0f,0.0f);
 	
 	while(progression < segmentLength){
 		glPushMatrix();
 		glTranslatef(start.x+offset.x, start.y+offset.y, start.z+offset.z);
-		glutSolidSphere(radius, 8, 8);
+		radius = startRadius-(startRadius-endRadius)*(progression/segmentLength);
+		glutSolidSphere( radius, 8, 8);
 		glPopMatrix();
 		progression+=radius;
 		offset = dir;
@@ -99,6 +100,7 @@ void getSegmentSpheres(Segment* segment,std::vector<sphere>& spheres){
 	
 	while(progression < segmentLength){
 		spheres.push_back(sphere(vec3(segment->start.x+offset.x, segment->start.y+offset.y, segment->start.z+offset.z),radius));
+		radius = segment->startRadius-(segment->startRadius-segment->endRadius)*(progression/segmentLength);
 		progression+=radius;
 		offset = dir;
 		offset.mul(progression);
@@ -110,7 +112,17 @@ void triangulate(){
 	std::vector<sphere> spheres;
 	for (int i = 0; i < segments.size(); i++) getSegmentSpheres(&segments[i],spheres);
 	triangles.clear();
-	marchCubes(vec3(-4.0,0.0,-4.0),vec3(8.0,14.0,8.0),128,triangles,&spheres);
+	marchCubes(vec3(-3.0,0.0,-3.0),vec3(6.0,12.0,6.0),64,triangles,&spheres);
+}
+
+void calculateRadii(Segment* segment,float r,int depth = 0){
+	if(r < 0.00001) r = 0.02;
+	segment->startRadius = r;
+	if(depth == 2) r-=0.14; else if(depth>3) r-=0.07; else r-=0.04;
+	if(r < 0.00001) r = 0.02;
+	segment->endRadius = r;
+	
+	for(int i=0;i<segment->children.size();i++) calculateRadii(&segments[segment->children[i]],r,depth+1);
 }
 
 void init() {
@@ -122,12 +134,19 @@ void init() {
 	float segL = 0.5f;
 	segments.resize(numSegs);
 	for (int i = 0; i < numSegs; i++) {
-		if (i) segments[i] = Segment(vec3(0, segL * i, 0), vec3(0, segL * i + segL, 0), &segments[i - 1]);
+		if (i != 0){
+			segments[i] = Segment(vec3(0, segL * i, 0), vec3(0, segL * i + segL, 0));
+			segments[0].children.push_back(i);
+		}
 		else segments[i] = Segment(vec3(0, segL*i, 0), vec3(0, segL * i + segL, 0));
 	}
 	
+	calculateRadii(&segments[0],0.5f);
+	std::cout<<"done"<<std::endl;
 	isTriangulated = false;
 }
+
+
 
 void print(float x, float y, char* text) {
 	glRasterPos2f(x, y);
@@ -168,8 +187,7 @@ void display() {
 		//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 		glBegin(GL_TRIANGLES);
 		for(int i=0;i<triangles.size();i++){
-			if(triangles[i].y < 5.0) glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
-			else glColor4f(0,0.8,0, 1.0f);
+			glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
 			glVertex3f(triangles[i].x,triangles[i].y,triangles[i].z);
 		}
 		glEnd();
@@ -196,7 +214,7 @@ void display() {
 		glEnable(GL_LIGHTING);
 		GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };    
 		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };   
-		GLfloat LightPosition[]= { -6.0f, 8.0f, 2.0f, 1.0f };  
+		GLfloat LightPosition[]= { 2.0f, 8.0f, -6.0f, 1.0f };  
 		glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); 
 		glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
 		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition); 
@@ -250,8 +268,10 @@ void reshape(int w, int h) {
 
 void keyboard(unsigned char key, int x, int y) {
 
-	if (key == VK_RETURN)
+	if (key == VK_RETURN){
 		iteration(segments, points, segmentLength, influenceRadius, killDistance);
+		calculateRadii(&segments[0],0.5f);
+	}
 	switch (key) {
 		case 'z':segmentLength -= 0.05f;
 			init();

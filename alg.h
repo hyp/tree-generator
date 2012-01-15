@@ -42,18 +42,16 @@ public:
  */
 struct Segment {
     vec3 start, end;
-    Segment* next,* child,* parent;
+
+    std::vector<int> children;
     std::vector<int> influencePoints;
+    float startRadius,endRadius;
 public:
 
-    Segment(): next(0),child(0),parent(0) {
+    Segment() {
     }
 
-    Segment(vec3 s, vec3 e) : start(s), end(e),next(0),child(0),parent(0) {
-    }
-
-    Segment(vec3 s, vec3 e, Segment* prev) : start(s), end(e),next(0),child(0),parent(prev) {
-        prev->next=this;
+    Segment(vec3 s, vec3 e) : start(s), end(e) {
     }
 
     void display();

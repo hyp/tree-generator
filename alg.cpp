@@ -74,9 +74,9 @@ void iteration(std::vector<Segment>& segments, std::vector<Point>& points,float 
 			averageDirection.add(segments[i].end);//now averageDirection is the end point of new segment
 
 			Segment branch=Segment(segments[i].end,averageDirection);
-			branch.parent=&segments[i];
+			//branch.parent=&segments[i];
 			segments.push_back(branch);
-			segments[i].child=&segments[segments.size()-1];
+			segments[i].children.push_back(segments.size()-1);
 			segments[i].influencePoints.clear();
 		}
 	}
