@@ -302,26 +302,19 @@ unsigned short aiCubeEdgeFlags[256] = {
 	0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x000
 };
 
-//the distance function
-float distanceToSegment(vec3 p,const vec3& start,const vec3& end,const float startRadius,const float endRadius){
-	const float segmentLength = sqrtf((start.x - end.x)*(start.x - end.x)+(start.y - end.y)*(start.y - end.y)+(start.z - end.z)*(start.z - end.z));
-	const float halfSegmentLength = segmentLength * 0.5;
-	vec3 center = end;center.sub(start);center.mul(0.5);center.add(start);
-	p.sub(center); //we want center of the cylinder to be the origin so o = center, but p = op = p - o, thus p = p - center
-	const float ydiff = fabs(p.y)-halfSegmentLength;
-	if(ydiff>=0.0) return ydiff; //the cylinder is between halfSegmentLength and -halfSegmentLength
-	const float r = startRadius-(startRadius-endRadius)*((p.y+halfSegmentLength)/segmentLength); //calculate radius of the cylinder at current y
-	return sqrtf(p.x * p.x + p.z * p.z) - r;
+float distanceToSphere(vec3 p,sphere& s){
+	return s.position.distance(&p) - s.radius;
 }
 
-std::vector<Segment>* _segments = 0;
+std::vector<sphere>* _spheres = 0;
+
 
 /*
  */
 float fSample(vec3& p) {
 	float d = 100000000.0f;
-	for(std::vector<Segment>::iterator i = _segments->begin();i!=_segments->end();++i)
-		d = std::min(d,distanceToSegment(p,(*i).start,(*i).end,0.1,0.1));
+	for(std::vector<sphere>::iterator i = _spheres->begin();i!=_spheres->end();++i)
+		d = std::min(d,distanceToSphere(p,(*i)));
 	return d;
 }
 
@@ -423,8 +416,8 @@ void marchCube(vec3& pos, vec3& step, std::vector<vec3>& vertices) {
 
 ///
 
-void marchCubes(vec3 position,vec3 size,int numCubes,std::vector<vec3>& vertices,std::vector<Segment>* segments){
-	_segments= segments;
+void marchCubes(vec3 position,vec3 size,int numCubes,std::vector<vec3>& vertices,std::vector<sphere>* spheres){
+	_spheres = spheres;
 	
 	vec3 currentPosition = position;
 	vec3 step = size;step/=float(numCubes);
@@ -445,6 +438,7 @@ void marchCubes(vec3 position,vec3 size,int numCubes,std::vector<vec3>& vertices
 			nextX += numCubes;
 			currentPosition.y += step.y;
 			if( i == nextY ){
+				std::cout<<"  "<<((float)nextY/(float)runs)*100.0<<"% done.."<<std::endl;
 				currentPosition.y = position.y;
 				nextY+=numCubes*numCubes;
 				currentPosition.z+=step.z;

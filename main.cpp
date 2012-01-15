@@ -88,10 +88,29 @@ void Segment::display(){
 	}
 }
 
+void getSegmentSpheres(Segment* segment,std::vector<sphere>& spheres){
+	vec3 dir = segment->end;
+	dir.sub(segment->start);
+	dir.normalize();
+	
+	float radius = 0.15f;
+	float progression = 0.0f;
+	vec3 offset(0.0f,0.0f,0.0f);
+	
+	while(progression < segmentLength){
+		spheres.push_back(sphere(vec3(segment->start.x+offset.x, segment->start.y+offset.y, segment->start.z+offset.z),radius));
+		progression+=radius;
+		offset = dir;
+		offset.mul(progression);
+	}	
+}
+
 void triangulate(){
 	isTriangulated = true;
+	std::vector<sphere> spheres;
+	for (int i = 0; i < segments.size(); i++) getSegmentSpheres(&segments[i],spheres);
 	triangles.clear();
-	marchCubes(vec3(-4.0,0.0,-4.0),vec3(8.0,14.0,8.0),64,triangles,&segments);
+	marchCubes(vec3(-4.0,0.0,-4.0),vec3(8.0,14.0,8.0),128,triangles,&spheres);
 }
 
 void init() {
