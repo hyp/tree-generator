@@ -321,7 +321,7 @@ std::vector<Segment>* _segments = 0;
 float fSample(vec3& p) {
 	float d = 100000000.0f;
 	for(std::vector<Segment>::iterator i = _segments->begin();i!=_segments->end();++i)
-		d = std::min(d,distanceToSegment(p,(*i).start,(*i).end,0.4,0.4));
+		d = std::min(d,distanceToSegment(p,(*i).start,(*i).end,0.1,0.1));
 	return d;
 }
 

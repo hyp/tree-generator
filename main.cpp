@@ -33,6 +33,9 @@ Crown* crown = 0;
 std::vector<Point> points;
 std::vector<Segment> segments;
 
+std::vector<vec3> triangles;
+bool isTriangulated;
+
 /**
  * Spherical tree crown
  */
@@ -85,11 +88,10 @@ void Segment::display(){
 	}
 }
 
-std::vector<vec3> triangles;
-
 void triangulate(){
+	isTriangulated = true;
 	triangles.clear();
-	marchCubes(vec3(-7.0,0.0,-7.0),vec3(14.0,14.0,14.0),32,triangles,&segments);
+	marchCubes(vec3(-4.0,0.0,-4.0),vec3(8.0,14.0,8.0),64,triangles,&segments);
 }
 
 void init() {
@@ -105,7 +107,7 @@ void init() {
 		else segments[i] = Segment(vec3(0, segL*i, 0), vec3(0, segL * i + segL, 0));
 	}
 	
-	triangulate();
+	isTriangulated = false;
 }
 
 void print(float x, float y, char* text) {
@@ -141,48 +143,51 @@ void display() {
 	drawLine(vec3(0,0,0),vec3(0,20,0),vec3(0,1,0));
 	drawLine(vec3(0,0,0),vec3(0,0,20),vec3(0,0,1));
 	
-
-	glColor4f(1, 0, 0, 1.0f);
-	//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-	glBegin(GL_TRIANGLES);
-	for(int i=0;i<triangles.size();i++){
-		if(triangles[i].y < 5.0) glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
-		else glColor4f(0,0.8,0, 1.0f);
-		glVertex3f(triangles[i].x,triangles[i].y,triangles[i].z);
-	}
-	glEnd();
-	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-	
-	glDisable(GL_DEPTH_TEST);
-	glColor4f(0, 0, 1, 1.0f);
-	for (int i = 0; i < segments.size(); i++) {
-		drawLine(segments[i].start,segments[i].end,vec3(0,0,1));
-	}
-	glEnable(GL_DEPTH_TEST);
-	
 	int pointsRemaining = 0;
-	/*for (int i = 0; i < points.size(); i++) {
-		if (points[i].used) {
-			glPushMatrix();
-			glTranslatef(points[i].position.x, points[i].position.y, points[i].position.z);
-			glutSolidSphere(0.2f, 4, 4);
-			glPopMatrix();
-			pointsRemaining++;
+	
+	if(isTriangulated){	
+		//glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+		glBegin(GL_TRIANGLES);
+		for(int i=0;i<triangles.size();i++){
+			if(triangles[i].y < 5.0) glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
+			else glColor4f(0,0.8,0, 1.0f);
+			glVertex3f(triangles[i].x,triangles[i].y,triangles[i].z);
 		}
+		glEnd();
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	
+		glDisable(GL_DEPTH_TEST);
+		glColor4f(0, 0, 1, 1.0f);
+		for (int i = 0; i < segments.size(); i++) {
+			drawLine(segments[i].start,segments[i].end,vec3(0,0,1));
+		}
+		glEnable(GL_DEPTH_TEST);
 	}
-	glEnable(GL_LIGHTING);
-	GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };    
-	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };   
-	GLfloat LightPosition[]= { -6.0f, 8.0f, 2.0f, 1.0f };  
-	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); 
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
-	glLightfv(GL_LIGHT1, GL_POSITION,LightPosition); 
-	glEnable(GL_LIGHT1);
-	glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
-	for (int i = 0; i < segments.size(); i++) {
-		segments[i].display();
+	else{
+		glColor4f(1, 0, 0, 1.0f);
+		for (int i = 0; i < points.size(); i++) {
+			if (points[i].used) {
+				glPushMatrix();
+				glTranslatef(points[i].position.x, points[i].position.y, points[i].position.z);
+				glutSolidSphere(0.2f, 4, 4);
+				glPopMatrix();
+				pointsRemaining++;
+			}
+		}
+		glEnable(GL_LIGHTING);
+		GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };    
+		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };   
+		GLfloat LightPosition[]= { -6.0f, 8.0f, 2.0f, 1.0f };  
+		glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient); 
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition); 
+		glEnable(GL_LIGHT1);
+		glColor4f(107.0/255.0,66.0/255.0,38.0/255.0, 1.0f);
+		for (int i = 0; i < segments.size(); i++) {
+			segments[i].display();
+		}
+		glDisable(GL_LIGHTING);
 	}
-	glDisable(GL_LIGHTING);*/
 
 	//crown->display();
 
@@ -226,10 +231,8 @@ void reshape(int w, int h) {
 
 void keyboard(unsigned char key, int x, int y) {
 
-	if (key == VK_RETURN){
+	if (key == VK_RETURN)
 		iteration(segments, points, segmentLength, influenceRadius, killDistance);
-		triangulate();
-	}
 	switch (key) {
 		case 'z':segmentLength -= 0.05f;
 			init();
@@ -248,6 +251,9 @@ void keyboard(unsigned char key, int x, int y) {
 			break;
 		case 'n':killDistance += 0.1f;
 			init();
+			break;
+		case 't': 
+			triangulate(); 
 			break;
 	}
 	display();
